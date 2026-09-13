@@ -36,6 +36,7 @@
 		]
 	},
 	"devDependencies": {
+		"eslint-plugin-jest": "^25.6.0",
 		"sass": "^1.77.2"
 	}
 }
