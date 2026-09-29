@@ -40,4 +40,11 @@
         text-transform: uppercase;
         color: #fff;
     }
+    &__message {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
 }

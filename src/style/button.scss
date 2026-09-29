@@ -17,12 +17,12 @@
     }
     .inner {
         position: relative;
-        background-color: $main-color;
+        background-color: var(--button-color, $main-color);
         line-height: 18px;
         padding: 0 18px;
         transition: none;
         &::before {
-            border-color: $main-color transparent;
+            border-color: var(--button-color, $main-color) transparent;
             border-style: solid;
             border-width: 0 0 10px 10px;
             content: "";
@@ -33,7 +33,7 @@
             transition: none;
         }
         &::after {
-            border-color: $main-color transparent;
+            border-color: var(--button-color, $main-color) transparent;
             border-style: solid;
             border-width: 0 0 10px 10px;
             content: "";
@@ -80,7 +80,7 @@
 
     }
     &.button__main::before, &.button__main::after {
-        background-color: $main-color;
+        background-color: var(--button-color, $main-color);
     }
     &.button__secondary::before, &.button__secondary::after {
         background-color: $grey;

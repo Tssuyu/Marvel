@@ -2,26 +2,55 @@ import { Component } from 'react';
 import MarvelService from '../../services/MarvelService';
 import './randomChar.scss';
 import mjolnir from '../../resources/img/mjolnir.png';
+import Spinner from '../spinner/Spinner';
+import ErrorMessage from '../errorMessage/ErrorMessage';
+import cap from './notFound.avif';
 
 class RandomChar extends Component {
     state = {
-        char: {}
+        char: {},
+        loading: true,
+        error: false
     }
 
     componentDidMount() {
         this.updateChar();
+        // const timerId = setInterval(this.updateChar, 3000);
+    }
+
+    componentWillUnmount() {
+        // clearInterval(this.timerId);
     }
 
     marvelService = new MarvelService();
 
-    onCharLoaded = (char) => {
-        this.setState({char})
+    onCharLoading = () => {
+        this.setState({
+            loading: true
+        })
     }
 
-    updateChar = () => this.marvelService.getCharacter((Math.floor(Math.random() * 20) + 1))
-        .then(this.onCharLoaded);
+    onCharLoaded = (char) => {
+        this.setState({
+            char,
+            loading: false
+        })
+    }
 
-    // updateChar = () => {
+    onError = () => {
+        this.setState({
+            error: true,
+            loading: false
+        })
+    }
+
+    updateChar = () => {
+        this.onCharLoading();
+        this.marvelService.getCharacter((Math.floor(Math.random() * 20) + 1))
+        .then(this.onCharLoaded).catch(this.onError);
+    }
+
+    // updateChar = () => {                                         method to get char from local db.json
     //     // const id = Math.floor(Math.random() * 20) + 1;
     //     const id = 4;
     //     const char = this.marvelService.getCharacter(id);
@@ -36,37 +65,16 @@ class RandomChar extends Component {
     }
 
     render() {
-        const {char: {name, description, thumbnail, homepage, wiki}} = this.state;
-
-
+        const {char, loading, error} = this.state;
+        const errorMessage = error ? <ErrorMessage/> : null;
+        const spinner = loading ? <Spinner/> : null;
+        const content = !(loading || error) ? <View char={char} key={char.id} cutText={this.cutText}/> : null;
 
         return (
             <div className="randomchar">
-                <div className="randomchar__block">
-                    <img 
-                        src={thumbnail} 
-                        alt="Random character" 
-                        className="randomchar__img"
-                        onError={(e) => {
-                            if (this.state.char.id === 1) e.target.src = 'https://img.championat.com/c/900x900/news/big/l/d/vse-filmy-marvel_16906220511081609251.jpg';
-                            if (this.state.char.id === 4) e.target.src = 'https://www.sideshow.com/cdn-cgi/image/width=850,quality=90,f=auto/https://www.sideshow.com/storage/product-images/915765/hot-toys-marvel-hulk-sixth-scale-figure-gallery-6a5e672f7ff36.jpg'
-                        }}
-                    />
-                    <div className="randomchar__info">
-                        <p className="randomchar__name">{name}</p>
-                        <p className="randomchar__descr">
-                            {this.cutText(description)}
-                        </p>
-                        <div className="randomchar__btns">
-                            <a href={homepage} className="button button__main">
-                                <div className="inner">homepage</div>
-                            </a>
-                            <a href={wiki} className="button button__secondary">
-                                <div className="inner">Wiki</div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
+                {errorMessage}
+                {spinner}
+                {content}
                 <div className="randomchar__static">
                     <p className="randomchar__title">
                         Random character for today!<br/>
@@ -84,6 +92,38 @@ class RandomChar extends Component {
             </div>
         )
     }
+}
+
+const View = ({char, cutText}) => {
+    const {id, name, description, thumbnail, homepage, wiki} = char;
+
+    return (
+        <div className="randomchar__block">
+            <img 
+                src={thumbnail} 
+                alt="Random character" 
+                className="randomchar__img"
+                onError={(e) => {
+                    e.target.src=cap;
+                    e.target.style.objectFit='contain'
+                }}
+            />
+            <div className="randomchar__info">
+                <p className="randomchar__name">{name}</p>
+                <p className="randomchar__descr">
+                    {cutText(description)}
+                </p>
+                <div className="randomchar__btns">
+                    <a href={homepage} className="button button__main">
+                        <div className="inner">homepage</div>
+                    </a>
+                    <a href={wiki} className="button button__secondary">
+                        <div className="inner">Wiki</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    )
 }
 
 export default RandomChar;
