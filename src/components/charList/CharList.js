@@ -37,7 +37,7 @@ class CharList extends Component {
     state = {
         chars: [],
         selectedCharId: null,
-        charsCount: 9,
+        offset: 0,
         loading: false,
         error: false,
         allLoaded: false
@@ -65,12 +65,12 @@ class CharList extends Component {
         )
     }
 
-    onCharsLoaded = (chars, count) => {
+    onCharsLoaded = (newChars) => {
         this.setState(
         {
-            chars,
+            chars: [...this.state.chars, ...newChars],
             loading: false,
-            allLoaded: chars.length < count
+            allLoaded: newChars.length < 9
         },
         this.onStatusChange
         )
@@ -88,14 +88,15 @@ class CharList extends Component {
 
     marvelService = new MarvelService();
 
-    getChars = (count) => {
+    getChars = (offset) => {
         this.onCharsLoading();
-        this.marvelService.getAllCharacters(count)
-        .then(chars => this.onCharsLoaded(chars, count)).catch(this.onError); 
+        this.marvelService.getAllCharacters(9, offset)
+        .then(chars => this.onCharsLoaded(chars))
+        .catch(this.onError); 
     }
 
     componentDidMount() {
-        this.getChars(this.state.charsCount);
+        this.getChars(this.state.offset);
     }
 
     onLoadMore = () => {
@@ -105,10 +106,10 @@ class CharList extends Component {
         this.setState(
             (state) => ({
                 loading: true,
-                charsCount: state.charsCount + 3
+                offset: state.offset + 9
             }),
             () => {
-                this.getChars(this.state.charsCount);
+                this.getChars(this.state.offset);
             }
         )
     }
