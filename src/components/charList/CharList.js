@@ -40,6 +40,8 @@ class CharList extends Component {
         offset: 0,
         loading: false,
         error: false,
+        newCharsLoading: false,
+        newCharsError: false,
         allLoaded: false
     }
 
@@ -70,17 +72,23 @@ class CharList extends Component {
         {
             chars: [...this.state.chars, ...newChars],
             loading: false,
-            allLoaded: newChars.length < 9
+            newCharsLoading: false,
+            newCharsError: false,
+            allLoaded: newChars.length < 5
         },
         this.onStatusChange
         )
     }
 
     onError = () => {
+        const { newCharsLoading } = this.state;
+
         this.setState(
         {
-            error: true,
-            loading: false
+            error: !newCharsLoading,
+            newCharsError: newCharsLoading,
+            loading: false,
+            newCharsLoading: false
         },
         this.onStatusChange
         );
@@ -89,13 +97,13 @@ class CharList extends Component {
     marvelService = new MarvelService();
 
     getChars = (offset) => {
-        this.onCharsLoading();
-        this.marvelService.getAllCharacters(9, offset)
+        this.marvelService.getAllCharacters(5, offset)
         .then(chars => this.onCharsLoaded(chars))
         .catch(this.onError); 
     }
 
     componentDidMount() {
+        this.onCharsLoading();
         this.getChars(this.state.offset);
     }
 
@@ -105,8 +113,8 @@ class CharList extends Component {
         }
         this.setState(
             (state) => ({
-                loading: true,
-                offset: state.offset + 9
+                newCharsLoading: true,
+                offset: state.offset + 5
             }),
             () => {
                 this.getChars(this.state.offset);
@@ -115,7 +123,7 @@ class CharList extends Component {
     }
 
     render() {
-        const {chars, error, loading, allLoaded, selectedCharId} = this.state;
+        const {chars, error, loading, newCharsLoading, newCharsError, allLoaded, selectedCharId} = this.state;
         const {getSelectedChar} = this.props;
         const content = (!error && !loading) ? 
                     chars.map(char => {
@@ -137,17 +145,20 @@ class CharList extends Component {
                         content
                     }
                 </ul>
+                {newCharsError && (
+                    <ErrorMessage/>
+                )}
                 {!loading && !error && (
                     <button
                         className={`button button__main button__long ${allLoaded ? 'button__success' : ''}`}
                         onClick={this.onLoadMore}
-                        disabled={allLoaded}
+                        disabled={allLoaded || newCharsLoading}
                         style={{
                             '--button-color': allLoaded ? '#28a745' : '#9F0013'
                         }}
                     >
                         <div className="inner">
-                            {allLoaded ? 'done' : 'load more'}
+                            {newCharsLoading ? <Spinner size={20} color="#fff"/> : allLoaded ? 'done' : 'load more'}
                         </div>
                     </button>
                 )}
