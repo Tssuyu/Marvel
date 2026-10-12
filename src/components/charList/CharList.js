@@ -67,14 +67,14 @@ class CharList extends Component {
         )
     }
 
-    onCharsLoaded = (newChars) => {
+    onCharsLoaded = (newChars, isNextEmpty) => {
         this.setState(
         {
             chars: [...this.state.chars, ...newChars],
             loading: false,
             newCharsLoading: false,
             newCharsError: false,
-            allLoaded: newChars.length < 5
+            allLoaded: isNextEmpty
         },
         this.onStatusChange
         )
@@ -98,8 +98,17 @@ class CharList extends Component {
 
     getChars = (offset) => {
         this.marvelService.getAllCharacters(5, offset)
-        .then(chars => this.onCharsLoaded(chars))
-        .catch(this.onError); 
+            .then(chars => {
+                this.marvelService.getAllCharacters(5, offset + 5)
+                    .then(nextChars => {
+                        this.onCharsLoaded(chars, nextChars.length === 0 || chars.length < 5)
+                    })
+                    .catch(error => {
+                        console.log('Ups! NextChars error!');
+                        this.onCharsLoaded(chars, false);
+                    })
+            })
+            .catch(this.onError); 
     }
 
     componentDidMount() {
