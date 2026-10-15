@@ -33,11 +33,10 @@ class CharItem extends Component {
 }
 
 class CharList extends Component {
-
     state = {
         chars: [],
         selectedCharId: null,
-        charsCount: 9,
+        charsCount: +localStorage.getItem('charsCount') || 9,
         loading: false,
         error: false,
         allLoaded: false
@@ -66,10 +65,12 @@ class CharList extends Component {
     }
 
     onCharsLoaded = (chars, count) => {
+        localStorage.setItem('charsCount', count);
         this.setState(
         {
             chars,
             loading: false,
+            charsCount: count,
             allLoaded: chars.length < count
         },
         this.onStatusChange
@@ -95,20 +96,24 @@ class CharList extends Component {
     }
 
     componentDidMount() {
-        this.getChars(this.state.charsCount);
+        if (!localStorage.getItem('charsCount')) {
+            localStorage.setItem('charsCount', '9');
+        }
+        this.getChars(+localStorage.getItem('charsCount'));
     }
 
     onLoadMore = () => {
         if (this.state.allLoaded) {
             return;
         }
+        let newCharsCount = +localStorage.getItem('charsCount') + 3;
+        console.log(newCharsCount);
         this.setState(
             (state) => ({
-                loading: true,
-                charsCount: state.charsCount + 3
+                loading: true
             }),
             () => {
-                this.getChars(this.state.charsCount);
+                this.getChars(newCharsCount);
             }
         )
     }
