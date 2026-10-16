@@ -121,7 +121,7 @@ class CharList extends Component {
     render() {
         const {chars, error, loading, allLoaded, selectedCharId} = this.state;
         const {getSelectedChar} = this.props;
-        const content = (!error && !loading) ? 
+        const content = !error ? 
                     chars.map(char => {
                         return <CharItem
                             char={char}
@@ -136,11 +136,20 @@ class CharList extends Component {
             <div className="char__list">
                 <ul className="char__grid">
                     {
-                        error ? (<li className="char__message"><ErrorMessage/></li>) : 
-                        loading ? (<li className="char__message"><Spinner/></li>) : 
-                        content
+                        error
+                            ? <li className="char__message"><ErrorMessage /></li>
+                            : (
+                                <>
+                                    {content}
+                                    {loading && (
+                                        <li className="char__message">
+                                            <Spinner />
+                                        </li>
+                                    )}
+                                </>
+                            )
                     }
-                </ul>
+                                    </ul>
                 {!loading && !error && (
                     <button
                         className={`button button__main button__long ${allLoaded ? 'button__success' : ''}`}
