@@ -95,7 +95,12 @@ class CharList extends Component {
         .then(chars => this.onCharsLoaded(chars, count)).catch(this.onError); 
     }
 
+    componentWillUnmount() {
+        window.removeEventListener('scroll', this.handleScroll);
+    }
+
     componentDidMount() {
+        window.addEventListener('scroll', this.onScroll);
         if (!localStorage.getItem('charsCount')) {
             localStorage.setItem('charsCount', '9');
         }
@@ -103,7 +108,7 @@ class CharList extends Component {
     }
 
     onLoadMore = () => {
-        if (this.state.allLoaded) {
+        if (this.state.loading || this.state.allLoaded) {
             return;
         }
         let newCharsCount = +localStorage.getItem('charsCount') + 3;
@@ -116,6 +121,13 @@ class CharList extends Component {
                 this.getChars(newCharsCount);
             }
         )
+    }
+
+    onScroll = () => {
+        if (this.state.loading || this.state.allLoaded) return;
+        if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight) {
+            this.onLoadMore();
+        }
     }
 
     render() {
