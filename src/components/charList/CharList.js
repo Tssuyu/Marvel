@@ -17,9 +17,16 @@ class CharItem extends Component {
         
         return (
             <li className={className}
+                tabIndex={0}
                 onClick={() => {
                     onSelect(id);
                     getSelectedChar(char);
+                }}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                        onSelect(id);
+                        getSelectedChar(char);
+                    }
                 }}>
                 <img src={thumbnail} 
                     alt={name}
