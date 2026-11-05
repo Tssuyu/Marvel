@@ -47,12 +47,17 @@ const View = ({selectedChar}) => {
                 <div>
                     <div className="char__info-name">{name}</div>
                     <div className="char__btns">
-                        <a href={homepage} className="button button__main">
-                            <div className="inner">Homepage</div>
-                        </a>
-                        <a href={wiki} className="button button__secondary">
-                            <div className="inner">Wiki</div>
-                        </a>
+                        {homepage && (
+                            <a href={homepage} className="button button__main">
+                                <div className="inner">Homepage</div>
+                            </a>
+                        )}
+
+                        {wiki && (
+                            <a href={wiki} className="button button__secondary">
+                                <div className="inner">Wiki</div>
+                            </a>
+                        )}
                     </div>
                 </div>
             </div>
