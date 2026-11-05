@@ -95,7 +95,7 @@ class RandomChar extends Component {
 }
 
 const View = ({char, cutText}) => {
-    const {id, name, description, thumbnail, homepage, wiki} = char;
+    const {name, description, thumbnail, homepage, wiki} = char;
 
     return (
         <div className="randomchar__block">
