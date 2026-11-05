@@ -69,7 +69,6 @@ class RandomChar extends Component {
         const errorMessage = error ? <ErrorMessage/> : null;
         const spinner = loading ? <Spinner/> : null;
         const content = !(loading || error) ? <View char={char} key={char.id} cutText={this.cutText}/> : null;
-        const testAutoRedeployViaGitIntegration = true;
 
         return (
             <div className="randomchar">
