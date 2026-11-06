@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.css": "/Marvel/static/css/main.c815c000.css",
+    "main.js": "/Marvel/static/js/main.4313dc6e.js",
+    "static/media/vision.png": "/Marvel/static/media/vision.067d4ae1936d64a577ce.png",
+    "static/media/mjolnir.png": "/Marvel/static/media/mjolnir.61f31e1809f12183a524.png",
+    "static/media/error.gif": "/Marvel/static/media/error.42292aa12b6bc303ce99.gif",
+    "static/media/notFound.avif": "/Marvel/static/media/notFound.ae061393d6da752d54a6.avif",
+    "index.html": "/Marvel/index.html",
+    "main.c815c000.css.map": "/Marvel/static/css/main.c815c000.css.map",
+    "main.4313dc6e.js.map": "/Marvel/static/js/main.4313dc6e.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.c815c000.css",
+    "static/js/main.4313dc6e.js"
+  ]
+}
