@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import MarvelService from '../../services/MarvelService';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
@@ -7,180 +7,143 @@ import PropTypes from 'prop-types';
 import './charList.scss';
 import cap from './notFound.avif';
 
-class CharItem extends Component {
+const CharItem = (props) => {
 
-    render() {
-        const {char, onSelect, selected, getSelectedChar} = this.props;
-        const {id, name, thumbnail} = char;
-
-        const className = selected ? "char__item char__item_selected" : "char__item";
-        
-        return (
-            <li className={className}
-                tabIndex={0}
-                onClick={() => {
+    const {char, onSelect, selected, getSelectedChar} = props;
+    const {id, name, thumbnail} = char;
+    const className = selected ? "char__item char__item_selected" : "char__item";
+    
+    return (
+        <li className={className}
+            tabIndex={0}
+            onClick={() => {
+                onSelect(id);
+                getSelectedChar(char);
+            }}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
                     onSelect(id);
                     getSelectedChar(char);
-                }}
-                onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                        onSelect(id);
-                        getSelectedChar(char);
-                    }
-                }}>
-                <img src={thumbnail} 
-                    alt={name}
-                    onError={(e) => {
-                        e.target.src=cap;
-                    }}/>
-                <div className="char__name">{name}</div>
-            </li>
-        )
-    }
+                }
+            }}>
+            <img src={thumbnail} 
+                alt={name}
+                onError={(e) => {
+                    e.target.src=cap;
+                }}/>
+            <div className="char__name">{name}</div>
+        </li>
+    )
 }
 
-class CharList extends Component {
+const marvelService = new MarvelService();
 
-    state = {
-        chars: [],
-        selectedCharId: null,
-        offset: 0,
-        loading: false,
-        error: false,
-        newCharsLoading: false,
-        newCharsError: false,
-        allLoaded: false
-    }
+const CharList = (props) => {
 
-    onStatusChange = () => {
-        const { getStatus } = this.props;
-        const { error, loading } = this.state;
+    const { getStatus } = props;
+    const [chars, setChars] = useState([]);
+    const [selectedCharId, setSelectedCharId] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
+    const [newCharsLoading, setNewCharsLoading] = useState(false);
+    const [newCharsError, setNewCharsError] = useState(false);
+    const [allLoaded, setAllLoaded] = useState(false);
+    const isLoadingMore = useRef(false)
 
+    useEffect(() => {
         getStatus(error, loading);
+    }, [error, loading, getStatus]);
+
+    const onSelect = (id) => {
+        setSelectedCharId(id);
     }
 
-    onSelect = (id) => {
-        this.setState({
-            selectedCharId: id
-        })
+    const onCharsLoaded = (newChars, isNextEmpty) => {
+        setChars(prevChars => [...prevChars, ...newChars]);
+        setLoading(false);
+        setNewCharsLoading(false);
+        setNewCharsError(false);
+        setAllLoaded(isNextEmpty);
+        isLoadingMore.current = false;
     }
 
-    onCharsLoading = () => {
-        this.setState(
-        {
-            loading: true
-        },
-        this.onStatusChange
-        )
+    const onError = () => {
+        setError(!isLoadingMore.current);
+        setNewCharsError(isLoadingMore.current);
+        setLoading(false);
+        setNewCharsLoading(false);
+        isLoadingMore.current = false;
     }
 
-    onCharsLoaded = (newChars, isNextEmpty) => {
-        this.setState(
-        {
-            chars: [...this.state.chars, ...newChars],
-            loading: false,
-            newCharsLoading: false,
-            newCharsError: false,
-            allLoaded: isNextEmpty
-        },
-        this.onStatusChange
-        )
-    }
-
-    onError = () => {
-        const { newCharsLoading } = this.state;
-
-        this.setState(
-        {
-            error: !newCharsLoading,
-            newCharsError: newCharsLoading,
-            loading: false,
-            newCharsLoading: false
-        },
-        this.onStatusChange
-        );
-    }
-
-    marvelService = new MarvelService();
-
-    getChars = (offset) => {
-        this.marvelService.getAllCharacters(5, offset)
+    const getChars = (offset) => {
+        marvelService.getAllCharacters(5, offset)
             .then(chars => {
-                this.marvelService.getAllCharacters(5, offset + 5)
+                marvelService.getAllCharacters(5, offset + 5)
                     .then(nextChars => {
-                        this.onCharsLoaded(chars, nextChars.length === 0 || chars.length < 5)
+                        onCharsLoaded(chars, nextChars.length === 0 || chars.length < 5)
                     })
-                    .catch(error => {
+                    .catch(() => {
                         console.log('Ups! NextChars error!');
-                        this.onCharsLoaded(chars, false);
+                        onCharsLoaded(chars, false);
                     })
             })
-            .catch(this.onError); 
+            .catch(() => onError()); 
     }
 
-    componentDidMount() {
-        this.onCharsLoading();
-        this.getChars(this.state.offset);
-    }
+    useEffect(() => {
+        getChars(0)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
-    onLoadMore = () => {
-        if (this.state.allLoaded) {
+    const onLoadMore = () => {
+        if (allLoaded) {
             return;
         }
-        this.setState(
-            (state) => ({
-                newCharsLoading: true,
-                offset: state.offset + 5
-            }),
-            () => {
-                this.getChars(this.state.offset);
-            }
-        )
+        isLoadingMore.current = true;
+        setNewCharsLoading(true);
+        getChars(chars.length);
     }
 
-    render() {
-        const {chars, error, loading, newCharsLoading, newCharsError, allLoaded, selectedCharId} = this.state;
-        const {getSelectedChar} = this.props;
-        const content = (!error && !loading) ? 
-                    chars.map(char => {
-                        return <CharItem
-                            char={char}
-                            key={char.id}
-                            onSelect={this.onSelect}
-                            selected={selectedCharId === char.id}
-                            getSelectedChar={getSelectedChar}
-                            />
-                    }) : null;
+    const {getSelectedChar} = props;
+    const content = (!error && !loading) ? 
+                chars.map(char => {
+                    return <CharItem
+                        char={char}
+                        key={char.id}
+                        onSelect={onSelect}
+                        selected={selectedCharId === char.id}
+                        getSelectedChar={getSelectedChar}
+                        />
+                }) : null;
 
-        return (
-            <div className="char__list">
-                <ul className="char__grid">
-                    {
-                        error ? (<li className="char__message"><ErrorMessage/></li>) : 
-                        loading ? (<li className="char__message"><Spinner/></li>) : 
-                        content
-                    }
-                </ul>
-                {newCharsError && (
-                    <ErrorMessage/>
-                )}
-                {!loading && !error && (
-                    <button
-                        className={`button button__main button__long ${allLoaded ? 'button__success' : ''}`}
-                        onClick={this.onLoadMore}
-                        disabled={allLoaded || newCharsLoading}
-                        style={{
-                            '--button-color': allLoaded ? '#28a745' : '#9F0013'
-                        }}
-                    >
-                        <div className="inner">
-                            {newCharsLoading ? <Spinner size={20} color="#fff"/> : allLoaded ? 'done' : 'load more'}
-                        </div>
-                    </button>
-                )}
-            </div>
-        )
-    }
+    return (
+        <div className="char__list">
+            <ul className="char__grid">
+                {
+                    error ? (<li className="char__message"><ErrorMessage/></li>) : 
+                    loading ? (<li className="char__message"><Spinner/></li>) : 
+                    content
+                }
+            </ul>
+            {newCharsError && (
+                <ErrorMessage/>
+            )}
+            {!loading && !error && (
+                <button
+                    className={`button button__main button__long ${allLoaded ? 'button__success' : ''}`}
+                    onClick={onLoadMore}
+                    disabled={allLoaded || newCharsLoading}
+                    style={{
+                        '--button-color': allLoaded ? '#28a745' : '#9F0013'
+                    }}
+                >
+                    <div className="inner">
+                        {newCharsLoading ? <Spinner size={20} color="#fff"/> : allLoaded ? 'done' : 'load more'}
+                    </div>
+                </button>
+            )}
+        </div>
+    )
 }
 
 CharList.propTypes = {
