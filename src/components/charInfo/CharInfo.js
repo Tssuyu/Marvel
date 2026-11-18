@@ -1,39 +1,35 @@
-import { Component } from 'react';
+
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import Skeleton from '../skeleton/Skeleton'
 import PropTypes from 'prop-types';
-
 import './charInfo.scss';
 import cap from '../charList/notFound.avif';
 
 const cutText = (text) => {
     if (!text) return '';
-
     return text.length > 150
         ? text.slice(0, 150) + '...'
         : text;
 }
 
-class CharInfo extends Component {
+const CharInfo = (props) => {
 
-    render() { 
-        const {error, loading, selectedChar} = this.props;
+    const {error, loading, selectedChar} = props;
 
-        const errorMessage = error ? <ErrorMessage/> : null;
-        const spinner = loading ? <Spinner/> : null;
+    const errorMessage = error ? <ErrorMessage/> : null;
+    const spinner = loading ? <Spinner/> : null;
 
-        const skeleton = (!loading && !error && !selectedChar.id) ? <Skeleton/> : null;
-        const content = (!loading && !error && selectedChar.id) ? <View selectedChar={selectedChar}/> : null;
-        return (
-            <div className="char__info">
-                {errorMessage}
-                {spinner}
-                {skeleton}
-                {content}
-            </div>
-        )
-    }
+    const skeleton = (!loading && !error && !selectedChar.id) ? <Skeleton/> : null;
+    const content = (!loading && !error && selectedChar.id) ? <View selectedChar={selectedChar}/> : null;
+    return (
+        <div className="char__info">
+            {errorMessage}
+            {spinner}
+            {skeleton}
+            {content}
+        </div>
+    )
 }
 
 const View = ({selectedChar}) => {
