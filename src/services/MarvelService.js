@@ -1,36 +1,27 @@
-//import data from '../db.json';
+import { useHttp } from "../hooks/http.hook";
 
-class MarvelService {
-    _apiBase = 'https://marvel-server-zeta.vercel.app/characters';
-    _apiKey = 'apikey=d4eecb0c66dedbfae4eab45d312fc1df';
+const useMarvelService = () => {
+    const _apiBase = 'https://marvel-server-zeta.vercel.app/';
+    const _apiKey = 'apikey=d4eecb0c66dedbfae4eab45d312fc1df';
 
-    getResource = async (url) => {
-        let res = await fetch(url);
+    const {loading, error, request, clearError} = useHttp();
 
-        if (!res.ok) {
-            throw new Error(`Could not fetch ${url}, status: ${res.status}`)
-        }
-
-        return await res.json();
+    const getAllCharacters = async (limit = 5, offset = 0) => {
+        const res = await request(`${_apiBase}characters?limit=${limit}&offset=${offset}&${_apiKey}`);
+        return res.data.results.map(_transformCharacter);
     }
 
-    getAllCharacters = async (limit = 5, offset = 0) => {
-        // if (offset > 0) {                                            error for testing newCharsError
-        //     throw new Error('Test Load More error');
-        // }
-        const res = await this.getResource(`${this._apiBase}?limit=${limit}&offset=${offset}&${this._apiKey}`);  // getting data from real server
-        return res.data.results.map(this._transformCharacter);
-        //return data.data.results.map(this._transformCharacter);
+    const getCharacter = async (id) => {
+        const res = await request(`${_apiBase}characters/${id}?${_apiKey}`);
+        return _transformCharacter(res.data.results[0]);
     }
 
-    getCharacter = async (id) => {
-        const res = await this.getResource(`${this._apiBase}/${id}?${this._apiKey}`);    // getting data from real server
-        return this._transformCharacter(res.data.results[0]);
-        // const char = data.data.results.find(char => char.id === id);    // getting local data from db.json
-        // return this._transformCharacter(char);
+    const getAllComics = async (limit = 4, offset = 0) => {
+        const res = await request(`${_apiBase}comics?limit=${limit}&offset=${offset}&${_apiKey}`);
+        return res.data.results.map(_transformComic);
     }
 
-    _transformCharacter = (char) => {
+    const _transformCharacter = (char) => {
         return {
             id: char.id,
             name: char.name,
@@ -41,6 +32,20 @@ class MarvelService {
             comics: char.comics.items
         }
     }
+
+    const _transformComic = (comic) => {
+        return {
+            id: comic.id,
+            title: comic.title,
+            description: comic.description,
+            pageCount: comic.pageCount,
+            thumbnail: comic.thumbnail.path + '.' + comic.thumbnail.extension,
+            textObjects: comic.textObjects,
+            price: comic.prices[0].price
+        }
+    }
+
+    return {loading, error, getAllCharacters, getCharacter, getAllComics, clearError}
 }
 
-export default MarvelService;
+export default useMarvelService;

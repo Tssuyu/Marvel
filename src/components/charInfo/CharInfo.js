@@ -6,22 +6,15 @@ import PropTypes from 'prop-types';
 import './charInfo.scss';
 import cap from '../charList/notFound.avif';
 
-const cutText = (text) => {
-    if (!text) return '';
-    return text.length > 150
-        ? text.slice(0, 150) + '...'
-        : text;
-}
-
 const CharInfo = (props) => {
 
-    const {error, loading, selectedChar} = props;
+    const {error, loading, selectedChar, cutText} = props;
 
     const errorMessage = error ? <ErrorMessage/> : null;
     const spinner = loading ? <Spinner/> : null;
 
     const skeleton = (!loading && !error && !selectedChar.id) ? <Skeleton/> : null;
-    const content = (!loading && !error && selectedChar.id) ? <View selectedChar={selectedChar}/> : null;
+    const content = (!loading && !error && selectedChar.id) ? <View selectedChar={selectedChar} cutText={cutText}/> : null;
     return (
         <div className="char__info">
             {errorMessage}
@@ -32,7 +25,7 @@ const CharInfo = (props) => {
     )
 }
 
-const View = ({selectedChar}) => {
+const View = ({selectedChar, cutText}) => {
     const {name, description, thumbnail, homepage, wiki, comics} = selectedChar;
     return (
         <>

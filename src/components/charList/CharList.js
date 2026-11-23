@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import MarvelService from '../../services/MarvelService';
+import useMarvelService from '../../services/MarvelService';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import PropTypes from 'prop-types';
@@ -36,19 +36,16 @@ const CharItem = (props) => {
     )
 }
 
-const marvelService = new MarvelService();
-
 const CharList = (props) => {
 
     const { getStatus } = props;
     const [chars, setChars] = useState([]);
     const [selectedCharId, setSelectedCharId] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(false);
     const [newCharsLoading, setNewCharsLoading] = useState(false);
     const [newCharsError, setNewCharsError] = useState(false);
     const [allLoaded, setAllLoaded] = useState(false);
-    const isLoadingMore = useRef(false)
+    const isLoadingMore = useRef(false);
+    const {loading, error, getAllCharacters} = useMarvelService();
 
     useEffect(() => {
         getStatus(error, loading);
@@ -60,7 +57,6 @@ const CharList = (props) => {
 
     const onCharsLoaded = (newChars, isNextEmpty) => {
         setChars(prevChars => [...prevChars, ...newChars]);
-        setLoading(false);
         setNewCharsLoading(false);
         setNewCharsError(false);
         setAllLoaded(isNextEmpty);
@@ -68,17 +64,16 @@ const CharList = (props) => {
     }
 
     const onError = () => {
-        setError(!isLoadingMore.current);
         setNewCharsError(isLoadingMore.current);
-        setLoading(false);
         setNewCharsLoading(false);
         isLoadingMore.current = false;
     }
 
-    const getChars = (offset) => {
-        marvelService.getAllCharacters(5, offset)
+    const getChars = (offset, initial) => {
+        initial ? setNewCharsLoading(false) : setNewCharsLoading(true);
+        getAllCharacters(5, offset)
             .then(chars => {
-                marvelService.getAllCharacters(5, offset + 5)
+                getAllCharacters(5, offset + 5)
                     .then(nextChars => {
                         onCharsLoaded(chars, nextChars.length === 0 || chars.length < 5)
                     })
@@ -91,7 +86,7 @@ const CharList = (props) => {
     }
 
     useEffect(() => {
-        getChars(0)
+        getChars(0, true)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -101,12 +96,11 @@ const CharList = (props) => {
         }
         isLoadingMore.current = true;
         setNewCharsLoading(true);
-        getChars(chars.length);
+        getChars(chars.length, false);
     }
 
     const {getSelectedChar} = props;
-    const content = (!error && !loading) ? 
-                chars.map(char => {
+    const content = chars.map(char => {
                     return <CharItem
                         char={char}
                         key={char.id}
@@ -114,21 +108,21 @@ const CharList = (props) => {
                         selected={selectedCharId === char.id}
                         getSelectedChar={getSelectedChar}
                         />
-                }) : null;
+                });
 
     return (
         <div className="char__list">
             <ul className="char__grid">
                 {
                     error ? (<li className="char__message"><ErrorMessage/></li>) : 
-                    loading ? (<li className="char__message"><Spinner/></li>) : 
+                    loading && !newCharsLoading ? (<li className="char__message"><Spinner/></li>) : 
                     content
                 }
             </ul>
             {newCharsError && (
                 <ErrorMessage/>
             )}
-            {!loading && !error && (
+            {chars.length > 0 && !error && (
                 <button
                     className={`button button__main button__long ${allLoaded ? 'button__success' : ''}`}
                     onClick={onLoadMore}

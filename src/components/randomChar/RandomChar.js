@@ -1,66 +1,30 @@
 import { useEffect, useState } from 'react';
-import MarvelService from '../../services/MarvelService';
+import useMarvelService from '../../services/MarvelService';
 import './randomChar.scss';
 import mjolnir from '../../resources/img/mjolnir.png';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import cap from './notFound.avif';
 
-const RandomChar = () => {
+const RandomChar = (props) => {
 
+    const {cutText} = props;
     const [char, setChar] = useState({});
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(false);
-
-    // state = {
-    //     char: {},
-    //     loading: true,
-    //     error: false
-    // }
+    const {loading, error, getCharacter, clearError} = useMarvelService();
 
     useEffect(() => {
         updateChar();
+        const timerId = setInterval(updateChar, 300000);
+        return () => {
+            clearInterval(timerId)
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    // componentDidMount() {
-    //     this.updateChar();
-    // }
-
-    const marvelService = new MarvelService();
-
-    const onCharLoading = () => {
-        setLoading(true);
-    }
-
-    const onCharLoaded = (char) => {
-        setChar(char);
-        setLoading(false);
-    }
-
-    const onError = () => {
-        setError(true);
-        setLoading(false);
-    }
-
     const updateChar = () => {
-        onCharLoading();
-        marvelService.getCharacter((Math.floor(Math.random() * 20) + 1))
-        .then(onCharLoaded).catch(onError);
-    }
-
-    // updateChar = () => {                                         method to get char from local db.json
-    //     // const id = Math.floor(Math.random() * 20) + 1;
-    //     const id = 4;
-    //     const char = this.marvelService.getCharacter(id);
-    //     this.onCharLoaded(char);
-    // }
-
-    const cutText = (text) => {
-        if (!text) return '';
-        return text.length > 150
-            ? text.slice(0, 150) + '...'
-            : text;
+        clearError();
+        getCharacter((Math.floor(Math.random() * 20) + 1))
+        .then(setChar);
     }
 
     const errorMessage = error ? <ErrorMessage/> : null;
