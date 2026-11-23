@@ -59,10 +59,10 @@ const ComicsList = () => {
     }
 
     const content = comics.map((comic, i) => {
-        const {thumbnail, title, price} = comic;
+        const {id, thumbnail, title, price} = comic;
         return (
-            <li className="comics__item" key={i}>
-                <a href="#">
+            <li className="comics__item" key={id}>
+                <a href={`/comics/${id}`}>
                     <img src={thumbnail} alt={title} className="comics__item-img"/>
                     <div className="comics__item-name">{title}</div>
                     <div className="comics__item-price">{price}$</div>
