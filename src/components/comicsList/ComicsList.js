@@ -4,18 +4,15 @@ import Spinner from '../spinner/Spinner';
 import useMarvelService from '../../services/MarvelService';
 
 import './comicsList.scss';
-import uw from '../../resources/img/UW.png';
-import xMen from '../../resources/img/x-men.png';
 
 const ComicsList = () => {
 
     const [comics, setComics] = useState([]);
-    const [selectedComicId, setSelectedComicId] = useState(null);
     const [newComicsLoading, setNewComicsLoading] = useState(false);
     const [newComicsError, setNewComicsError] = useState(false);
     const [allLoaded, setAllLoaded] = useState(false);
     const isLoadingMore = useRef(false);
-    const {loading, error, getAllComics, clearError} = useMarvelService();
+    const {loading, error, getAllComics} = useMarvelService();
 
     const onComicsLoaded = (newComics, isNextEmpty) => {
         setComics(prevComics => [...prevComics, ...newComics]);
@@ -29,10 +26,6 @@ const ComicsList = () => {
         setNewComicsError(isLoadingMore.current);
         setNewComicsLoading(false);
         isLoadingMore.current = false;
-    }
-
-    const onSelect = (id) => {
-        setSelectedComicId(id);
     }
 
     const getComics = (offset, initial) => {
