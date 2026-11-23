@@ -1,9 +1,7 @@
 {
   "files": {
     "main.css": "/Marvel/static/css/main.2049f31c.css",
-    "main.js": "/Marvel/static/js/main.81ab99b6.js",
-    "static/media/x-men.png": "/Marvel/static/media/x-men.41b39e1944f148b7a123.png",
-    "static/media/UW.png": "/Marvel/static/media/UW.422636b41d853d832a20.png",
+    "main.js": "/Marvel/static/js/main.5446d23a.js",
     "static/media/vision.png": "/Marvel/static/media/vision.067d4ae1936d64a577ce.png",
     "static/media/mjolnir.png": "/Marvel/static/media/mjolnir.61f31e1809f12183a524.png",
     "static/media/Avengers.png": "/Marvel/static/media/Avengers.4065c8f9c94e3d8b039a.png",
@@ -12,10 +10,10 @@
     "static/media/Avengers_logo.png": "/Marvel/static/media/Avengers_logo.9eaf219344d83362e830.png",
     "index.html": "/Marvel/index.html",
     "main.2049f31c.css.map": "/Marvel/static/css/main.2049f31c.css.map",
-    "main.81ab99b6.js.map": "/Marvel/static/js/main.81ab99b6.js.map"
+    "main.5446d23a.js.map": "/Marvel/static/js/main.5446d23a.js.map"
   },
   "entrypoints": [
     "static/css/main.2049f31c.css",
-    "static/js/main.81ab99b6.js"
+    "static/js/main.5446d23a.js"
   ]
 }
