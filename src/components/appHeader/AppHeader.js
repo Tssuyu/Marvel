@@ -28,7 +28,6 @@ const AppHeader = (props) => {
                     /
                     <li><NavLink 
                             to="/comics"
-                            end
                             style={({ isActive }) => setActiveLinkStyle(isActive)}>
                                 Comics
                         </NavLink>

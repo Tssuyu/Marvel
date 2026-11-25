@@ -12,6 +12,9 @@ export const useHttp = () => {
                 throw new Error(`Could not fetch ${url}, status: ${response.status}`)
             }
             const data = await response.json();
+            if (data.error) {
+                throw new Error(data.error);
+            }
             setLoading(false);
             return data;
 
@@ -23,6 +26,7 @@ export const useHttp = () => {
     }, []);
 
     const clearError = useCallback(() => setError(null), []);
+    
 
     return {loading, error, request, clearError}
 }
